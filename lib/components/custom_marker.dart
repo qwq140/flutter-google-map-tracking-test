@@ -21,14 +21,21 @@ class _CustomMarkerState extends State<CustomMarker> {
   }
   
   void _loadNetworkImage() {
+    print('_loadNetworkImage ${_hasRendered} ${widget.imageUrl}');
     final ImageStream stream = NetworkImage(widget.imageUrl).resolve(ImageConfiguration());
     stream.addListener(ImageStreamListener((image, synchronousCall) {
-      if(!_hasRendered) {
-        _hasRendered = true;
+      print("_loadNetworkImage call back : ${widget.imageUrl}");
+      // if(!_hasRendered) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          _hasRendered = true;
           widget.onRendering(_globalKey);
         });
-      }
+      // }
+    }, onError: (exception, stackTrace) {
+      print('_loadNetworkImage error : ${widget.imageUrl}');
+      print('$exception');
+    }, onChunk: (event) {
+      print('_loadNetworkImage onChunk : ${widget.imageUrl}');
     },));
   }
 
@@ -47,22 +54,6 @@ class _CustomMarkerState extends State<CustomMarker> {
           child: Image.network(
             widget.imageUrl,
             fit: BoxFit.cover,
-            // loadingBuilder: (context, child, loadingProgress) {
-            //   print("로딩 프로그래스 : $loadingProgress");
-            //   if(loadingProgress != null) {
-            //     return Center(
-            //       child: CircularProgressIndicator(),
-            //     );
-            //   }
-            //   if(loadingProgress == null && !_hasRendered) {
-            //     _hasRendered = true;
-            //     WidgetsBinding.instance.addPostFrameCallback((_) {
-            //       widget.onRendering(_globalKey);
-            //     });
-            //   }
-            //   print("이미지 로드가 완료되었습니다.");
-            //   return child;
-            // },
           ),
         ),
       ),
